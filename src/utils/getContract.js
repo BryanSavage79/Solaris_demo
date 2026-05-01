@@ -3,12 +3,22 @@ import { ethers } from "ethers";
 export const getContract = async () => {
   if (!window.ethereum) return null;
 
-  const provider = new ethers.BrowserProvider(window.ethereum);
-  const signer = await provider.getSigner();
+  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
+  if (!contractAddress || !ethers.isAddress(contractAddress)) {
+    throw new Error("VITE_CONTRACT_ADDRESS is missing or not a valid Ethereum address.");
+  }
 
-  return new ethers.Contract(
-    import.meta.env.VITE_CONTRACT_ADDRESS,
-    [], // add ABI later
-    signer
-  );
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
+    return new ethers.Contract(
+      contractAddress,
+      [], // add ABI later
+      signer
+    );
+  } catch (err) {
+    console.error("Failed to connect wallet or instantiate contract:", err);
+    return null;
+  }
 };
