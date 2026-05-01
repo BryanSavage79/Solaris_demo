@@ -1,0 +1,56 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+h1 {
+  font-size: 2.4rem;
+  margin: 0;
+}
+
+.subtitle {
+  color: #aaa;
+  margin: 0;
+}
+
+button {
+  padding: 0.7rem 1.6rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #f5a623;
+  color: #1a1a1a;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background: #e09510;
+}
+
+button:disabled {
+  background: #555;
+  color: #999;
+  cursor: default;
+}
+
+.info {
+  background: #1e1e2e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  word-break: break-all;
+}
+
+.info p {
+  margin: 0.4rem 0;
+}
+
+.status {
+  font-size: 0.9rem;
+  color: #aaa;
+}
