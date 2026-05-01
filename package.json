@@ -1,0 +1,17 @@
+{
+  "name": "solaris_demo",
+  "version": "1.0.0",
+  "description": "demonstrate proof of function",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
+  }
+}
