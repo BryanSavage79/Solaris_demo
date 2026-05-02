@@ -1,73 +1,52 @@
-# React + TypeScript + Vite
+# Solaris Compliance Engine
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Regulatory Logic as Code**  
+*Proof of Concept for Transparent & Compliant Supply Chains*
 
-Currently, two official plugins are available:
+![Solaris Demo](https://via.placeholder.com/800x400?text=Solaris+Compliance+Engine+Demo)  
+*(Replace with actual screenshot/GIF after deployment)*
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Overview
 
-## React Compiler
+**Solaris** is a working demonstration of a modern compliance engine that turns complex regulations into executable code.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+It tracks product lifecycle events (creation, material declaration, repairs, recycling, etc.), verifies them against regulatory rule profiles, and produces clear, auditable compliance verdicts — with full evidence trails.
 
-## Expanding the ESLint configuration
+Designed with **EU Digital Product Passport (DPP)** requirements in mind, it is highly relevant for solar, electronics, battery, and sustainability-focused companies.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Live Demo
+**→ [View Live Demo](https://your-project.pages.dev)** *(update after Cloudflare deployment)*
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Demo Scenarios
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+| Step | Scenario | Outcome | Key Learning |
+|------|----------|---------|--------------|
+| 1 | Genesis (Creation + Material Declaration) | **PASS** | Baseline compliance |
+| 2 | Unauthorized Repair | **FAIL** | Role enforcement violation |
+| 3 | Certified Remediation | **PASS** | Full compliance restored |
+| 4 | Draft 2027 Rules | **FAIL** | Prepares for stricter future regulation |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Key Features
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **Rules Engine**: Flexible, readable compliance logic (`exists`, `forall`, `count`, field conditions)
+- **Actor Role Verification**: Ensures only certified parties can perform certain actions
+- **Full Traceability**: Every decision is backed by evidence and timestamps
+- **Visual Timeline**: Clear audit-ready interface
+- **Exportable Reports**: Ready for regulatory submission
+- **Extensible**: Easy to add new regulations and rule profiles
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Technology Stack
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Frontend**: React 19 + TypeScript + Vite
+- **Core Engine**: Custom lightweight compliance rules engine
+- **Blockchain Ready**: Ethers.js integration prepared
+- **Testing**: Vitest
+- **Deployment**: Cloudflare Pages
+
+## Quick Start (Local)
+
+```bash
+git clone https://github.com/BryanSavage79/Solaris_demo.git
+cd Solaris_demo
+npm install
+npm run dev
