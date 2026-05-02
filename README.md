@@ -50,3 +50,26 @@ git clone https://github.com/BryanSavage79/Solaris_demo.git
 cd Solaris_demo
 npm install
 npm run dev
+Why This Matters
+•  Reduces regulatory risk
+•  Builds consumer and brand trust through transparency
+•  Prepares companies for upcoming mandatory regulations (EU DPP, etc.)
+•  Enables verifiable sustainable claims
+•  Scalable from POC to full enterprise SaaS + on-chain solution
+Vision & Roadmap
+•  Smart contract integration for immutable event logging
+•  Multi-jurisdiction rule support
+•  API / SaaS platform
+•  Integration with manufacturer ERP systems
+•  AI-assisted rule generation
+Target Use Cases
+•  Solar panel manufacturers
+•  Electronics & battery producers
+•  Repair & refurbishment networks
+•  Sustainability reporting teams
+•  Regulatory technology (RegTech) platforms
+
+Built as a Proof of Concept by Bryan Savage
+Open to collaboration with forward-thinking brands and investors.
+
+Questions? Feel free to open an issue or reach out.
