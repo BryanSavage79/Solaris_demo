@@ -1,5 +1,5 @@
 import React from 'react';
-import { EventStatus, ContractStatus } from '../types';
+import type { EventStatus, ContractStatus } from '../types';
 
 type BadgeVariant = EventStatus | ContractStatus;
 

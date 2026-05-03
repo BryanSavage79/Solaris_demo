@@ -1,5 +1,5 @@
 import React from 'react';
-import { Product, Contract } from '../types';
+import type { Product, Contract } from '../types';
 import { StatusBadge } from './StatusBadge';
 
 interface ProductCardProps {

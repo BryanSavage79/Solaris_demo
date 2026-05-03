@@ -1,4 +1,4 @@
-import { ProductEvent, EventStatus } from '../types';
+import type { ProductEvent, EventStatus } from '../types';
 import { mockEvents } from './mockData';
 
 let events: ProductEvent[] = [...mockEvents];

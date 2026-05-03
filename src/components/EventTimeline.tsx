@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProductEvent } from '../types';
+import type { ProductEvent } from '../types';
 import { StatusBadge } from './StatusBadge';
 
 interface EventTimelineProps {

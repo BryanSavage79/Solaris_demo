@@ -1,4 +1,4 @@
-import { Product, ProductEvent, Contract } from '../types';
+import type { Product, ProductEvent, Contract } from '../types';
 
 export const mockProduct: Product = {
   id: 'prod-001',

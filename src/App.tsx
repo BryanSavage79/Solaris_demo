@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import './App.css';
 import { evaluate } from './core/evaluator';
 import { actorRegistry } from './registry/actors';
 import { euDppV1 } from './registry/profiles/eu-dpp-v1';
 import { draft2027 } from './registry/profiles/draft-2027';
 import { demoSteps } from './data/demoEvents';
-import type { EvaluationResult, RuleProfile } from './core/types';
+import type { RuleProfile } from './core/types';
 import { VerdictHeader } from './components/VerdictHeader';
 import { RuleList } from './components/RuleList';
 import { Timeline } from './components/Timeline';
@@ -22,18 +22,14 @@ const profileMap: Record<string, RuleProfile> = {
 
 function App() {
   const [stepIndex, setStepIndex] = useState(0);
-  const [result, setResult] = useState<EvaluationResult | null>(null);
-
-  useEffect(() => {
-    const step = demoSteps[stepIndex];
-    const profile = profileMap[step.profile];
-    const evalResult = evaluate(step.events, profile, actorRegistry);
-    setResult(evalResult);
-  }, [stepIndex]);
 
   const step = demoSteps[stepIndex];
   const profile = profileMap[step.profile];
-  const allTraces = result?.ruleResults.flatMap(r => r.trace) ?? [];
+  const result = useMemo(
+    () => evaluate(step.events, profile, actorRegistry),
+    [step, profile],
+  );
+  const allTraces = result.ruleResults.flatMap(r => r.trace);
 
   return (
     <div className="app">
@@ -51,19 +47,15 @@ function App() {
       </header>
       <main className="app-main">
         <DemoControls steps={demoSteps} currentStep={stepIndex} onStepChange={setStepIndex} />
-        {result && (
-          <>
-            <VerdictHeader result={result} />
-            <LifecycleTimeline events={step.events} ruleResults={result.ruleResults} />
-            <div className="content-grid">
-              <RuleList ruleResults={result.ruleResults} />
-              <Timeline events={step.events} traces={allTraces} />
-            </div>
-            <VerificationPanel events={step.events} reportHash={result.reportHash} />
-            <ComplianceMappingTable profile={profile} ruleResults={result.ruleResults} />
-            <AuditExport events={step.events} profile={profile} verdict={result} />
-          </>
-        )}
+          <VerdictHeader result={result} />
+          <LifecycleTimeline events={step.events} ruleResults={result.ruleResults} />
+          <div className="content-grid">
+            <RuleList ruleResults={result.ruleResults} />
+            <Timeline events={step.events} traces={allTraces} />
+          </div>
+          <VerificationPanel events={step.events} reportHash={result.reportHash} />
+          <ComplianceMappingTable profile={profile} ruleResults={result.ruleResults} />
+          <AuditExport events={step.events} profile={profile} verdict={result} />
       </main>
     </div>
   );

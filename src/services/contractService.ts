@@ -1,4 +1,4 @@
-import { Contract, ContractStatus } from '../types';
+import type { Contract, ContractStatus } from '../types';
 import { mockContract } from './mockData';
 
 let contract: Contract = { ...mockContract };
@@ -15,7 +15,7 @@ export function getContract(): Contract {
  * Maps delivery milestones to corresponding contract states.
  */
 export function syncContractStatus(deliveryStatus: string): ContractStatus {
-  let newStatus: ContractStatus = contract.status;
+  let newStatus: ContractStatus;
 
   switch (deliveryStatus) {
     case 'pending':
