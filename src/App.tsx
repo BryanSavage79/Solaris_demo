@@ -23,6 +23,12 @@ const profileMap: Record<string, RuleProfile> = {
 
 type View = 'solaris' | 'dpp';
 
+const runEvaluate = (stepIdx: number): EvaluationResult => {
+  const step = demoSteps[stepIdx];
+  const profile = profileMap[step.profile];
+  return evaluate(step.events, profile, actorRegistry);
+};
+
 function App() {
   const [view, setView] = useState<View>('solaris');
   const [stepIndex, setStepIndex] = useState(0);
@@ -30,10 +36,7 @@ function App() {
 
   useEffect(() => {
     if (view !== 'dpp') return;
-    const step = demoSteps[stepIndex];
-    const profile = profileMap[step.profile];
-    const evalResult = evaluate(step.events, profile, actorRegistry);
-    setResult(evalResult);
+    setResult(runEvaluate(stepIndex));
   }, [stepIndex, view]);
 
   if (view === 'solaris') {
@@ -44,9 +47,7 @@ function App() {
           <button
             className="view-toggle-btn"
             onClick={() => {
-              const step = demoSteps[stepIndex];
-              const profile = profileMap[step.profile];
-              setResult(evaluate(step.events, profile, actorRegistry));
+              setResult(runEvaluate(stepIndex));
               setView('dpp');
             }}
           >

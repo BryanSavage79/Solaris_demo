@@ -1007,7 +1007,9 @@ export function SolarisDashboard() {
     style.textContent = css;
     document.head.appendChild(style);
     return () => {
-      document.head.removeChild(style);
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
     };
   }, []);
 
