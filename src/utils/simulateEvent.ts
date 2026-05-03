@@ -1,4 +1,4 @@
-import { Product, ProductStatus, EventType } from "../types";
+import type { Product, ProductStatus, EventType } from "../types";
 
 export const simulateEvent = (product: Product): Product => {
   const nextEvent: EventType = "VERIFIED";
