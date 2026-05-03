@@ -52,6 +52,14 @@ export const LifecycleTimeline: React.FC<Props> = ({ events, ruleResults }) => {
       <div className="lifecycle-stages">
         {STAGES.map((stage, idx) => {
           const status = getStageStatus(stage, events, ruleResults);
+          const nextStage = STAGES[idx + 1];
+          const nextStatus = nextStage ? getStageStatus(nextStage, events, ruleResults) : undefined;
+          const connectorStatus =
+            status === 'violation' || nextStatus === 'violation'
+              ? 'violation'
+              : status === 'complete' && nextStatus === 'complete'
+                ? 'complete'
+                : 'pending';
           return (
             <React.Fragment key={stage.eventType}>
               <div className={`lifecycle-stage lifecycle-stage--${status}`}>
@@ -62,7 +70,7 @@ export const LifecycleTimeline: React.FC<Props> = ({ events, ruleResults }) => {
                 </div>
               </div>
               {idx < STAGES.length - 1 && (
-                <div className={`lifecycle-connector lifecycle-connector--${status}`} />
+                <div className={`lifecycle-connector lifecycle-connector--${connectorStatus}`} />
               )}
             </React.Fragment>
           );

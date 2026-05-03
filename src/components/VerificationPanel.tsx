@@ -14,24 +14,17 @@ interface Check {
 }
 
 function isChronological(events: ComplianceEvent[]): boolean {
-  const sorted = [...events].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-  );
-  return sorted.every((e, i) => e.id === events[i]?.id || true) &&
-    events.every((e, i) => {
-      if (i === 0) return true;
-      return new Date(e.timestamp) >= new Date(events[i - 1].timestamp);
-    });
+  return events.every((e, i) => {
+    if (i === 0) return true;
+    return new Date(e.timestamp) >= new Date(events[i - 1].timestamp);
+  });
 }
 
 export const VerificationPanel: React.FC<Props> = ({ events, reportHash }) => {
   const ids = events.map(e => e.id);
   const uniqueIds = new Set(ids).size === ids.length;
 
-  const sortedByTime = [...events].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-  );
-  const chronological = isChronological(sortedByTime);
+  const chronological = isChronological(events);
 
   const allActorsKnown = events.every(e =>
     actorRegistry.some(a => a.address === e.actor),
