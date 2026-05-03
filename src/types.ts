@@ -1,42 +1,15 @@
-// Core domain types for the Solaris demo
+export type EventType = "VERIFIED" | "PENDING" | "REJECTED";
 
-export type EventStatus = 'pending' | 'in_transit' | 'delivered' | 'returned' | 'cancelled';
-
-export type ContractStatus = 'draft' | 'active' | 'fulfilled' | 'disputed' | 'expired';
+export type ProductStatus = "Verified" | "Pending" | "Rejected";
 
 export interface ProductEvent {
-  id: string;
-  timestamp: string;
-  type: string;
-  description: string;
-  location?: string;
-  actor?: string;
-  status: EventStatus;
-}
-
-export interface Contract {
-  id: string;
-  productId: string;
-  buyer: string;
-  seller: string;
-  status: ContractStatus;
-  value: number;
-  currency: string;
-  createdAt: string;
-  updatedAt: string;
-  terms: string;
+  type: EventType;
+  timestamp: number;
 }
 
 export interface Product {
   id: string;
   name: string;
-  sku: string;
-  description: string;
-  imageUrl: string;
-  price: number;
-  currency: string;
-  category: string;
-  manufacturer: string;
-  contractId: string;
-  currentStatus: EventStatus;
+  status: ProductStatus;
+  events: ProductEvent[];
 }
