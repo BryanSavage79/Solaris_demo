@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
 import { evaluate } from './core/evaluator';
 import { actorRegistry } from './registry/actors';
@@ -11,6 +11,7 @@ import { RuleList } from './components/RuleList';
 import { Timeline } from './components/Timeline';
 import { AuditExport } from './components/AuditExport';
 import { DemoControls } from './components/DemoControls';
+import { BlockchainVerification } from './components/BlockchainVerification';
 
 const profileMap: Record<string, RuleProfile> = {
   EU_DPP_2026: euDppV1,
@@ -19,18 +20,11 @@ const profileMap: Record<string, RuleProfile> = {
 
 function App() {
   const [stepIndex, setStepIndex] = useState(0);
-  const [result, setResult] = useState<EvaluationResult | null>(null);
-
-  useEffect(() => {
-    const step = demoSteps[stepIndex];
-    const profile = profileMap[step.profile];
-    const evalResult = evaluate(step.events, profile, actorRegistry);
-    setResult(evalResult);
-  }, [stepIndex]);
 
   const step = demoSteps[stepIndex];
   const profile = profileMap[step.profile];
-  const allTraces = result?.ruleResults.flatMap(r => r.trace) ?? [];
+  const result: EvaluationResult = evaluate(step.events, profile, actorRegistry);
+  const allTraces = result.ruleResults.flatMap(r => r.trace);
 
   return (
     <div className="app">
@@ -48,6 +42,7 @@ function App() {
         {result && (
           <>
             <VerdictHeader result={result} />
+            <BlockchainVerification />
             <div className="content-grid">
               <RuleList ruleResults={result.ruleResults} />
               <Timeline events={step.events} traces={allTraces} />

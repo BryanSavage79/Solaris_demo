@@ -32,7 +32,6 @@ function checkFieldCondition(event: ComplianceEvent, cond: FieldCondition): bool
 export function existsPredicate(
   events: ComplianceEvent[],
   clause: Extract<AssertClause, { exists: unknown }>['exists'],
-  _actors: Actor[],
 ): PredicateResult {
   const matching = events.filter(e => e.eventType === clause.eventType);
   if (matching.length === 0) {

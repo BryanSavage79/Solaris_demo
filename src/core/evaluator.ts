@@ -14,7 +14,7 @@ function evaluateRule(
   actors: Actor[],
 ): { status: 'PASS' | 'FAIL'; trace: import('./types').EvidenceTrace[]; failReason?: string } {
   if ('exists' in assert) {
-    const r = existsPredicate(events, assert.exists, actors);
+    const r = existsPredicate(events, assert.exists);
     return { status: r.pass ? 'PASS' : 'FAIL', trace: r.trace, failReason: r.failReason };
   }
   if ('forall' in assert) {
