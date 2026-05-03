@@ -41,11 +41,11 @@ function App() {
         <div className="header-inner">
           <div className="header-brand">
             <span className="brand-icon">⬡</span>
-            <h1 className="header-title">Solaris Compliance Engine</h1>
+            <h1 className="header-title">TraceLayer Explorer-Digital Product Passport Demo</h1>
             <span className="header-subtitle">Regulatory Logic as Code</span>
           </div>
           <p className="header-description">
-            This dashboard visualizes the Solaris protocol — a verifiable, event-driven Digital Product Passport lifecycle from manufacturing to end-of-life recycling.
+            This dashboard visualizes the TraceLayer protocol — a verifiable, event-driven Digital Product Passport lifecycle from manufacturing to end-of-life recycling.
           </p>
         </div>
       </header>
