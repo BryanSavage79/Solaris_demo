@@ -1,14 +1,14 @@
-# Solaris Compliance Engine
+# TraceLayer Explorer
 
 **Regulatory Logic as Code**  
 *Proof of Concept for Transparent & Compliant Supply Chains*
 
-![Solaris Demo](https://via.placeholder.com/800x400?text=Solaris+Compliance+Engine+Demo)  
+![TraceLayer Explorer](https://via.placeholder.com/800x400?text=TraceLayer+Explorer+Demo)  
 *(Replace with actual screenshot/GIF after deployment)*
 
 ## Overview
 
-**Solaris** is a working demonstration of a modern compliance engine that turns complex regulations into executable code.
+**TraceLayer Explorer** is a working demonstration of a modern compliance engine that turns complex regulations into executable code.
 
 It tracks product lifecycle events (creation, material declaration, repairs, recycling, etc.), verifies them against regulatory rule profiles, and produces clear, auditable compliance verdicts — with full evidence trails.
 
@@ -47,7 +47,7 @@ Designed with **EU Digital Product Passport (DPP)** requirements in mind, it is 
 
 ```bash
 git clone https://github.com/BryanSavage79/Solaris_demo.git
-cd Solaris_demo
+cd TraceLayer_Explorer
 npm install
 npm run dev
 Why This Matters

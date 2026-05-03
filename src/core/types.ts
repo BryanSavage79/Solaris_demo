@@ -35,6 +35,9 @@ export interface PredicateClause {
 
 export interface Rule {
   id: string;
+  description?: string;
+  regulation?: string;
+  article?: string;
   assert: AssertClause;
 }
 
@@ -65,6 +68,7 @@ export interface EvaluationResult {
   reportHash: string;
   profileId: string;
   schema: SchemaVersion;
+  profileVersion: string;
   ruleResults: RuleResult[];
   timestamp: string;
 }

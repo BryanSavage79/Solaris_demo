@@ -44,6 +44,7 @@ export function evaluate(
     reportHash: computeHash(profile.id, normalized),
     profileId: profile.id,
     schema: profile.schema,
+    profileVersion: profile.version,
     ruleResults,
     timestamp: new Date().toISOString(),
   };
