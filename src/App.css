@@ -34,9 +34,18 @@ body {
   z-index: 10;
 }
 
-.header-inner { max-width: 1400px; margin: 0 auto; padding: 1rem 0; display: flex; align-items: center; }
+.header-inner { max-width: 1400px; margin: 0 auto; padding: 1rem 0; display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
 
-.header-brand { display: flex; align-items: center; gap: 0.75rem; }
+.header-brand { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+
+.header-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-left: 2px solid var(--border);
+  padding-left: 1rem;
+  line-height: 1.5;
+  max-width: 500px;
+}
 
 .brand-icon { font-size: 1.5rem; color: var(--accent); }
 
@@ -303,8 +312,207 @@ body {
   letter-spacing: 0.06em;
 }
 
-/* Audit Export */
-.audit-export { display: flex; justify-content: flex-end; }
+.schema-version-badge {
+  font-size: 0.65rem;
+  font-family: var(--mono);
+  background: rgba(88,166,255,0.12);
+  color: var(--accent);
+  border: 1px solid rgba(88,166,255,0.3);
+  border-radius: 4px;
+  padding: 1px 7px;
+  margin-left: 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+/* Lifecycle Timeline */
+.lifecycle-timeline {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.lifecycle-stages {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.lifecycle-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 120px;
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  transition: border-color 0.15s;
+}
+
+.lifecycle-stage--complete { border-color: rgba(63,185,80,0.4); background: rgba(63,185,80,0.05); }
+.lifecycle-stage--violation { border-color: rgba(248,81,73,0.4); background: rgba(248,81,73,0.05); }
+.lifecycle-stage--required { border-color: rgba(210,153,34,0.4); background: rgba(210,153,34,0.05); }
+.lifecycle-stage--pending { border-color: var(--border); opacity: 0.55; }
+
+.lifecycle-stage-icon { font-size: 1.4rem; line-height: 1; }
+
+.lifecycle-stage-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lifecycle-stage-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lifecycle-stage-badge--complete { background: rgba(63,185,80,0.15); color: var(--pass); border: 1px solid rgba(63,185,80,0.3); }
+.lifecycle-stage-badge--violation { background: rgba(248,81,73,0.15); color: var(--fail); border: 1px solid rgba(248,81,73,0.3); }
+.lifecycle-stage-badge--required { background: rgba(210,153,34,0.15); color: #d2991a; border: 1px solid rgba(210,153,34,0.3); }
+.lifecycle-stage-badge--pending { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+.lifecycle-connector {
+  flex-shrink: 0;
+  width: 24px;
+  height: 2px;
+  background: var(--border);
+  margin: 0 2px;
+  align-self: center;
+  margin-bottom: 1.6rem;
+}
+
+.lifecycle-connector--complete { background: rgba(63,185,80,0.4); }
+.lifecycle-connector--violation { background: rgba(248,81,73,0.4); }
+
+/* Verification Panel */
+.verification-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.verification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.verification-score {
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  padding: 2px 10px;
+  border-radius: 4px;
+}
+
+.score-pass { color: var(--pass); background: rgba(63,185,80,0.1); border: 1px solid rgba(63,185,80,0.3); }
+.score-warn { color: #d2991a; background: rgba(210,153,34,0.1); border: 1px solid rgba(210,153,34,0.3); }
+
+.verification-checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.verification-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.check-pass { border-color: rgba(63,185,80,0.3); }
+.check-fail { border-color: rgba(248,81,73,0.3); }
+
+.check-icon {
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.check-pass .check-icon { color: var(--pass); }
+.check-fail .check-icon { color: var(--fail); }
+
+.check-body { flex: 1; min-width: 0; }
+
+.check-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.check-value {
+  font-size: 0.75rem;
+  color: var(--text);
+  word-break: break-all;
+}
+
+/* Compliance Mapping Table */
+.compliance-mapping {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.mapping-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.mapping-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+  vertical-align: middle;
+}
+
+.mapping-row--pass td { background: rgba(63,185,80,0.03); }
+.mapping-row--fail td { background: rgba(248,81,73,0.03); }
+
+.mapping-rule-id { font-weight: 600; white-space: nowrap; }
+.mapping-desc { color: var(--text-muted); }
+.mapping-regulation { color: var(--text); }
+.mapping-article { font-size: 0.7rem; color: var(--accent); white-space: nowrap; }
 
 .export-btn {
   background: var(--surface);
