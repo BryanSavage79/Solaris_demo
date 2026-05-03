@@ -14,22 +14,48 @@ import { DemoControls } from './components/DemoControls';
 import { LifecycleTimeline } from './components/LifecycleTimeline';
 import { VerificationPanel } from './components/VerificationPanel';
 import { ComplianceMappingTable } from './components/ComplianceMappingTable';
+import { SolarisDashboard } from './components/SolarisDashboard';
 
 const profileMap: Record<string, RuleProfile> = {
   EU_DPP_2026: euDppV1,
   DRAFT_EU_DPP_2027: draft2027,
 };
 
+type View = 'solaris' | 'dpp';
+
 function App() {
+  const [view, setView] = useState<View>('solaris');
   const [stepIndex, setStepIndex] = useState(0);
   const [result, setResult] = useState<EvaluationResult | null>(null);
 
   useEffect(() => {
+    if (view !== 'dpp') return;
     const step = demoSteps[stepIndex];
     const profile = profileMap[step.profile];
     const evalResult = evaluate(step.events, profile, actorRegistry);
     setResult(evalResult);
-  }, [stepIndex]);
+  }, [stepIndex, view]);
+
+  if (view === 'solaris') {
+    return (
+      <>
+        <SolarisDashboard />
+        <div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 100 }}>
+          <button
+            className="view-toggle-btn"
+            onClick={() => {
+              const step = demoSteps[stepIndex];
+              const profile = profileMap[step.profile];
+              setResult(evaluate(step.events, profile, actorRegistry));
+              setView('dpp');
+            }}
+          >
+            ⬡ DPP Explorer
+          </button>
+        </div>
+      </>
+    );
+  }
 
   const step = demoSteps[stepIndex];
   const profile = profileMap[step.profile];
@@ -41,12 +67,17 @@ function App() {
         <div className="header-inner">
           <div className="header-brand">
             <span className="brand-icon">⬡</span>
-            <h1 className="header-title">TraceLayer Explorer-Digital Product Passport Demo</h1>
+            <h1 className="header-title">TraceLayer Explorer — Digital Product Passport Demo</h1>
             <span className="header-subtitle">Regulatory Logic as Code</span>
           </div>
-          <p className="header-description">
-            This dashboard visualizes the TraceLayer protocol — a verifiable, event-driven Digital Product Passport lifecycle from manufacturing to end-of-life recycling.
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <p className="header-description">
+              This dashboard visualizes the TraceLayer protocol — a verifiable, event-driven Digital Product Passport lifecycle from manufacturing to end-of-life recycling.
+            </p>
+            <button className="view-toggle-btn" onClick={() => setView('solaris')}>
+              ⬡ Solaris Dashboard
+            </button>
+          </div>
         </div>
       </header>
       <main className="app-main">

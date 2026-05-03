@@ -64,6 +64,26 @@ body {
 
 .app-main { flex: 1; max-width: 1400px; margin: 0 auto; padding: 2rem; width: 100%; }
 
+.view-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.view-toggle-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
 /* Demo Controls */
 .demo-controls {
   background: var(--surface);
