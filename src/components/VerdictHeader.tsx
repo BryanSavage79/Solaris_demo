@@ -17,6 +17,10 @@ export const VerdictHeader: React.FC<Props> = ({ result }) => {
           <span className="label">Profile</span>
           <span className="value">{result.profileId}</span>
         </div>
+        <div className="verdict-schema">
+          <span className="label">Schema</span>
+          <span className="value mono">{result.schema}</span>
+        </div>
         <div className="verdict-hash">
           <span className="label">Report Hash</span>
           <span className="value mono">{result.reportHash}</span>

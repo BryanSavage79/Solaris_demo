@@ -2,6 +2,7 @@ import type { RuleProfile } from '../../core/types';
 
 export const euDppV1: RuleProfile = {
   id: 'EU_DPP_2026',
+  schema: 'dpp.v1',
   version: '1.0.0',
   rules: [
     {

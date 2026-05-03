@@ -1,5 +1,7 @@
 export type EventType = 'CREATED' | 'MATERIAL_DECLARED' | 'REPAIRED' | 'RECYCLED' | 'TRANSFERRED';
 
+export type SchemaVersion = 'dpp.v1';
+
 export interface ComplianceEvent {
   id: string;
   eventType: EventType;
@@ -38,6 +40,7 @@ export interface Rule {
 
 export interface RuleProfile {
   id: string;
+  schema: SchemaVersion;
   version: string;
   rules: Rule[];
   scoring: { mode: 'all_required' | 'weighted' };
@@ -61,6 +64,7 @@ export interface EvaluationResult {
   status: 'PASS' | 'FAIL';
   reportHash: string;
   profileId: string;
+  schema: SchemaVersion;
   ruleResults: RuleResult[];
   timestamp: string;
 }

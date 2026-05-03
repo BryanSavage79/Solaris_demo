@@ -43,6 +43,7 @@ export function evaluate(
     status: overallPass ? 'PASS' : 'FAIL',
     reportHash: computeHash(profile.id, normalized),
     profileId: profile.id,
+    schema: profile.schema,
     ruleResults,
     timestamp: new Date().toISOString(),
   };

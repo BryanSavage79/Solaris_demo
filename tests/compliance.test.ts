@@ -37,6 +37,12 @@ describe('Compliance Engine', () => {
     expect(eolRule?.failReason).toMatch(/RECYCLED/);
   });
 
+  it('EvaluationResult includes schema from profile', () => {
+    const step = demoSteps[0];
+    const result = evaluate(step.events, euDppV1, actorRegistry);
+    expect(result.schema).toBe('dpp.v1');
+  });
+
   it('reportHash is deterministic for identical inputs', () => {
     const step = demoSteps[0];
     const r1 = evaluate(step.events, euDppV1, actorRegistry);
