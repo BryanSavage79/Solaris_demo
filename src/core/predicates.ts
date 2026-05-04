@@ -32,6 +32,7 @@ function checkFieldCondition(event: ComplianceEvent, cond: FieldCondition): bool
 export function existsPredicate(
   events: ComplianceEvent[],
   clause: Extract<AssertClause, { exists: unknown }>['exists'],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _actors: Actor[],
 ): PredicateResult {
   const matching = events.filter(e => e.eventType === clause.eventType);
