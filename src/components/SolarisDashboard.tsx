@@ -1,4 +1,14 @@
 import { useState, useEffect } from "react";
+import {
+  actors,
+  actorById,
+  dppAccessCounts,
+  dppAccessLog,
+  eventLabel,
+  lifecycleEventsDesc,
+  velocoreX1Class,
+  velocoreX1Instance,
+} from "../data/tracelayerSeedData";
 
 // ── Ascendii color tokens ──────────────────────────────────────────────
 const C = {
@@ -439,6 +449,13 @@ const StewardRow = ({ name, handle, tier, score, status }: StewardRowProps) => {
   );
 };
 
+// ── Actor tier helper ──────────────────────────────────────────────────
+function actorTier(type: string): string {
+  if (type === "manufacturer" || type === "brand") return "Founding";
+  if (type === "regulator") return "Associate";
+  return "Verified";
+}
+
 // ── Tab content panels ─────────────────────────────────────────────────
 const panels: Record<string, () => React.ReactNode> = {
   overview: () => (
@@ -457,8 +474,8 @@ const panels: Record<string, () => React.ReactNode> = {
           <div
             style={{ flex: 1, minWidth: 200, display: "flex", flexDirection: "column", gap: 16 }}
           >
-            <Stat label="Brand Velocity" value="94.2" unit="pts" color={C.cyan} delta={3.1} />
-            <Stat label="Trust Index" value="88.7" unit="%" color={C.gold} delta={-0.4} />
+            <Stat label="Recycled Content" value={`${velocoreX1Class.recycled_content_pct}`} unit="%" color={C.cyan} delta={3.1} />
+            <Stat label="Repairability Score" value={`${velocoreX1Class.repairability_score}`} unit="/10" color={C.gold} />
             <Stat label="DPP Compliance" value="100" unit="%" color={C.cyan} />
           </div>
         </div>
@@ -474,28 +491,24 @@ const panels: Record<string, () => React.ReactNode> = {
             marginBottom: 12,
           }}
         >
-          SCAN COVERAGE — 7 DAY
+          DPP ACCESS — BY TIER
         </div>
         <BarChart
           color={C.gold}
           data={[
-            { l: "M", v: 72 },
-            { l: "T", v: 88 },
-            { l: "W", v: 65 },
-            { l: "T", v: 91 },
-            { l: "F", v: 79 },
-            { l: "S", v: 44 },
-            { l: "S", v: 51 },
+            { l: "Public",  v: dppAccessCounts["public"]       ?? 0 },
+            { l: "Pro",     v: dppAccessCounts["professional"] ?? 0 },
+            { l: "Reg",     v: dppAccessCounts["regulator"]    ?? 0 },
           ]}
         />
       </GlassCard>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {[
-          { l: "Active Nodes", v: "2,841", c: C.cyan },
-          { l: "Anomalies", v: "3", c: C.red },
-          { l: "DPP Records", v: "18,492", c: C.gold },
-          { l: "Impact Credits", v: "1,204", c: C.purple },
+          { l: "Tracked Instance",  v: "1",                                                c: C.cyan   },
+          { l: "Chain Events",      v: String(lifecycleEventsDesc.length),                 c: C.gold   },
+          { l: "Carbon Footprint",  v: `${velocoreX1Instance.carbon_footprint_kg} kg`,     c: C.purple },
+          { l: "DPP Accesses",      v: String(dppAccessLog.length),                        c: C.cyan   },
         ].map((s, i) => (
           <GlassCard key={i} style={{ padding: 14 }} accent={s.c}>
             <div
@@ -510,7 +523,7 @@ const panels: Record<string, () => React.ReactNode> = {
               {s.l}
             </div>
             <div
-              style={{ fontSize: 22, fontFamily: "'Orbitron'", fontWeight: 700, color: s.c }}
+              style={{ fontSize: 18, fontFamily: "'Orbitron'", fontWeight: 700, color: s.c }}
             >
               {s.v}
             </div>
@@ -539,54 +552,56 @@ const panels: Record<string, () => React.ReactNode> = {
               letterSpacing: 1,
             }}
           >
-            HEX-SCAN TOPOLOGY
+            SUPPLY CHAIN TOPOLOGY — VN → EU
           </span>
           <Chip label="LIVE" color={C.cyan} />
         </div>
         <HexMap />
       </GlassCard>
 
-      <GlassCard style={{ padding: 16 }} accent={C.red}>
+      <GlassCard style={{ padding: 16 }} accent={C.gold}>
         <div
           style={{
             fontSize: 11,
-            color: C.red,
+            color: C.textDim,
             fontFamily: "'Share Tech Mono'",
             letterSpacing: 1,
             marginBottom: 12,
           }}
         >
-          ⚠ ANOMALY LOG
+          LIFECYCLE EVENTS — REVERSE CHRONOLOGICAL
         </div>
-        {[
-          { node: "EU-E", type: "Velocity Spike", delta: "+340%", ts: "14m ago" },
-          { node: "ANML", type: "Auth Deviation", delta: "SIG:NULL", ts: "1h ago" },
-          { node: "NL", type: "Latency Drift", delta: "+180ms", ts: "3h ago" },
-        ].map((a, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "8px 0",
-              borderBottom: `1px solid ${C.border}`,
-            }}
-          >
-            <div>
-              <div style={{ fontSize: 13, color: C.text, fontWeight: 600 }}>{a.type}</div>
-              <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono'" }}>
-                NODE:{a.node}
+        {lifecycleEventsDesc.map((e, i) => {
+          const actor = e.actor_id ? actorById[e.actor_id] : null;
+          const dateStr = new Date(e.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+          return (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "8px 0",
+                borderBottom: `1px solid ${C.border}`,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 13, color: C.text, fontWeight: 600 }}>{eventLabel(e.event_type)}</div>
+                <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono'" }}>
+                  {actor ? actor.name : `@${velocoreX1Instance.owner_handle}`}
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 10, color: C.textDim }}>{dateStr}</div>
+                {e.onchain_tx && (
+                  <div style={{ fontSize: 9, color: C.cyan, fontFamily: "'Share Tech Mono'" }}>
+                    {e.onchain_tx.slice(0, 10)}…
+                  </div>
+                )}
               </div>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 12, color: C.red, fontFamily: "'Share Tech Mono'" }}>
-                {a.delta}
-              </div>
-              <div style={{ fontSize: 10, color: C.textDim }}>{a.ts}</div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </GlassCard>
     </div>
   ),
@@ -603,15 +618,15 @@ const panels: Record<string, () => React.ReactNode> = {
               letterSpacing: 1,
             }}
           >
-            BRAND WELL — UNDER ARMOUR
+            BRAND WELL — STRIDECORE EU
           </span>
           <Chip label="Architect Aura" color={C.gold} />
         </div>
-        <DimBar label="REACH DEPTH" value={84} color={C.cyan} />
-        <DimBar label="TRUST SIGNAL" value={91} color={C.gold} />
-        <DimBar label="CULTURAL FIT" value={76} color={C.purple} />
-        <DimBar label="IMPACT VECTOR" value={68} color={C.cyan} />
+        <DimBar label="RECYCLED CONTENT" value={Math.round(velocoreX1Class.recycled_content_pct)} color={C.cyan} />
+        <DimBar label="REPAIRABILITY" value={Math.round(velocoreX1Class.repairability_score * 10)} color={C.gold} />
         <DimBar label="DPP INTEGRITY" value={100} color={C.cyan} />
+        <DimBar label="SUBSTANCE SAFETY" value={100} color={C.cyan} />
+        <DimBar label="CIRCULARITY" value={85} color={C.purple} />
         <div
           style={{
             marginTop: 16,
@@ -651,16 +666,9 @@ const panels: Record<string, () => React.ReactNode> = {
             marginBottom: 12,
           }}
         >
-          AURA TIER REGISTRY
+          MATERIAL COMPOSITION
         </div>
-        {[
-          { tier: "Sovereign", range: "950–1000", color: "#ffffff", count: 0 },
-          { tier: "Visionary", range: "900–949", color: C.gold, count: 4 },
-          { tier: "Architect", range: "800–899", color: C.cyan, count: 12 },
-          { tier: "Pioneer", range: "700–799", color: C.purple, count: 31 },
-          { tier: "Initiate", range: "500–699", color: C.textMid, count: 88 },
-          { tier: "Nascent", range: "0–499", color: C.textDim, count: 203 },
-        ].map((a, i) => (
+        {velocoreX1Class.material_composition.map((m, i) => (
           <div
             key={i}
             style={{
@@ -671,32 +679,9 @@ const panels: Record<string, () => React.ReactNode> = {
               borderBottom: `1px solid ${C.border}`,
             }}
           >
-            <div
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: a.color,
-                boxShadow: `0 0 6px ${a.color}`,
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ flex: 1, fontSize: 13, color: a.color, fontWeight: 600 }}>{a.tier}</span>
-            <span style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono'" }}>
-              {a.range}
-            </span>
-            <span
-              style={{
-                fontSize: 12,
-                color: a.color,
-                fontFamily: "'Orbitron'",
-                fontWeight: 600,
-                minWidth: 28,
-                textAlign: "right",
-              }}
-            >
-              {a.count}
-            </span>
+            <span style={{ flex: 1, fontSize: 12, color: C.text }}>{m.material}</span>
+            <span style={{ fontSize: 11, color: C.textMid, fontFamily: "'Share Tech Mono'" }}>{m.pct}%</span>
+            <Chip label={m.origin} color={i % 2 === 0 ? C.cyan : C.gold} />
           </div>
         ))}
       </GlassCard>
@@ -715,27 +700,20 @@ const panels: Record<string, () => React.ReactNode> = {
               letterSpacing: 1,
             }}
           >
-            ACTIVE STEWARDS
+            ACTIVE STEWARDS — VELOCORE X1
           </span>
-          <Chip label="338 total" color={C.cyan} />
+          <Chip label={`${actors.length} total`} color={C.cyan} />
         </div>
-        <StewardRow name="Kieran Osei" handle="@k.osei" tier="Founding" score="982" status="active" />
-        <StewardRow name="Yuna Park" handle="@y.park.eu" tier="Founding" score="964" status="active" />
-        <StewardRow name="Marco Vespa" handle="@mvespa" tier="Verified" score="841" status="active" />
-        <StewardRow
-          name="Aisha Nwosu"
-          handle="@a.nwosu"
-          tier="Verified"
-          score="822"
-          status="inactive"
-        />
-        <StewardRow
-          name="Dmitri Sorel"
-          handle="@sorel.d"
-          tier="Associate"
-          score="701"
-          status="active"
-        />
+        {actors.map((a, i) => (
+          <StewardRow
+            key={i}
+            name={a.name}
+            handle={a.onchain_handle ? `@${a.onchain_handle}` : a.country_code}
+            tier={actorTier(a.type)}
+            score={a.verified ? "Verified" : "Unverified"}
+            status="active"
+          />
+        ))}
       </GlassCard>
 
       <GlassCard style={{ padding: 16 }} accent={C.purple}>
@@ -751,7 +729,7 @@ const panels: Record<string, () => React.ReactNode> = {
             <div
               style={{ fontSize: 22, fontFamily: "'Orbitron'", fontWeight: 700, color: C.gold }}
             >
-              14
+              {actors.filter(a => ["manufacturer","brand"].includes(a.type)).length}
             </div>
             <div
               style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono'" }}
@@ -763,7 +741,7 @@ const panels: Record<string, () => React.ReactNode> = {
             <div
               style={{ fontSize: 22, fontFamily: "'Orbitron'", fontWeight: 700, color: C.cyan }}
             >
-              87
+              {actors.filter(a => ["distributor","retailer","repairer","recycler"].includes(a.type)).length}
             </div>
             <div
               style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono'" }}
@@ -775,12 +753,12 @@ const panels: Record<string, () => React.ReactNode> = {
             <div
               style={{ fontSize: 22, fontFamily: "'Orbitron'", fontWeight: 700, color: C.textMid }}
             >
-              237
+              {actors.filter(a => a.type === "regulator").length}
             </div>
             <div
               style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono'" }}
             >
-              ASSOCIATE
+              REGULATOR
             </div>
           </div>
         </div>
@@ -804,11 +782,11 @@ const panels: Record<string, () => React.ReactNode> = {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {[
-            { label: "Partner", value: "Under Armour EMEA" },
-            { label: "Covenant ID", value: "CVN-0042-UA-EMEA" },
-            { label: "Established", value: "Q1 2026" },
-            { label: "Status", value: "RATIFIED", color: C.cyan },
-            { label: "Renewal", value: "Q1 2027" },
+            { label: "Partner",     value: "Stridecore Athletic Europe BV" },
+            { label: "Covenant ID", value: "CVN-SC-EU-2025" },
+            { label: "Established", value: "Q1 2025" },
+            { label: "Status",      value: "RATIFIED", color: C.cyan },
+            { label: "Renewal",     value: "Q1 2026" },
           ].map((r, i) => (
             <div
               key={i}
@@ -847,11 +825,11 @@ const panels: Record<string, () => React.ReactNode> = {
           COVENANT TERMS
         </div>
         {[
-          { term: "DPP Compliance", status: "MET", c: C.cyan },
-          { term: "Impact Credit Floor", status: "MET", c: C.cyan },
-          { term: "Steward Threshold (50)", status: "MET", c: C.cyan },
-          { term: "ULIQ Floor (750)", status: "MET", c: C.cyan },
-          { term: "Quarterly Audit", status: "PENDING", c: C.gold },
+          { term: "DPP Compliance",         status: "MET",    c: C.cyan },
+          { term: "CE Marking",             status: "MET",    c: C.cyan },
+          { term: "ESPR Substance Checks",  status: "MET",    c: C.cyan },
+          { term: "Circularity Enrolment",  status: "ACTIVE", c: C.cyan },
+          { term: "Quarterly Audit",        status: "PENDING", c: C.gold },
         ].map((t, i) => (
           <div
             key={i}
@@ -870,7 +848,10 @@ const panels: Record<string, () => React.ReactNode> = {
     </div>
   ),
 
-  digitaltwin: () => (
+  digitaltwin: () => {
+    const onchainTx = lifecycleEventsDesc.find(e => e.onchain_tx)?.onchain_tx ?? "";
+    const shortTx = onchainTx ? `${onchainTx.slice(0, 10)}…${onchainTx.slice(-6)}` : "—";
+    return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, animation: "fade-in 0.4s ease" }}>
       <GlassCard style={{ padding: 16 }} accent={C.purple}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
@@ -882,9 +863,9 @@ const panels: Record<string, () => React.ReactNode> = {
               letterSpacing: 1,
             }}
           >
-            DIGITAL TWIN STATUS
+            DIGITAL TWIN — {velocoreX1Class.sku}
           </span>
-          <Chip label="SYNCED" color={C.purple} />
+          <Chip label="ACTIVE" color={C.purple} />
         </div>
 
         <div
@@ -949,22 +930,25 @@ const panels: Record<string, () => React.ReactNode> = {
                 x="60"
                 y="68"
                 textAnchor="middle"
-                fontSize="10"
+                fontSize="9"
                 fill="white"
                 fontFamily="'Orbitron'"
                 fontWeight="700"
               >
-                v2.4
+                NFC
               </text>
             </svg>
           </div>
         </div>
 
         {[
-          { label: "Last Sync", value: "2m ago" },
-          { label: "Data Points", value: "481,204" },
-          { label: "Integrity Hash", value: "0x3f9a…d71c" },
-          { label: "Chain", value: "Base L2" },
+          { label: "Serial Number",   value: velocoreX1Instance.serial_number },
+          { label: "NFC Carrier",     value: velocoreX1Instance.data_carrier_id },
+          { label: "Lifecycle State", value: velocoreX1Instance.lifecycle_state.replace(/_/g, " ") },
+          { label: "Owner",           value: `@${velocoreX1Instance.owner_handle}` },
+          { label: "Activated",       value: new Date(velocoreX1Instance.activated_at).toLocaleDateString("en-GB") },
+          { label: "Warranty Expires", value: new Date(velocoreX1Instance.warranty_expires).toLocaleDateString("en-GB") },
+          { label: "On-Chain TX",     value: shortTx },
         ].map((r, i) => (
           <div
             key={i}
@@ -980,12 +964,13 @@ const panels: Record<string, () => React.ReactNode> = {
             >
               {r.label}
             </span>
-            <span style={{ fontSize: 13, color: C.text }}>{r.value}</span>
+            <span style={{ fontSize: 11, color: C.text, maxWidth: "55%", textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.value}</span>
           </div>
         ))}
       </GlassCard>
     </div>
-  ),
+    );
+  },
 };
 
 // ── Tab configuration ──────────────────────────────────────────────────
