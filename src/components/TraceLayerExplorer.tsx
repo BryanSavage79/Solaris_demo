@@ -146,7 +146,7 @@ const panels: Record<string, PanelFn> = {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {[
           { label: 'TRACKED INSTANCE', value: '1',                                     color: C.cyan   },
-          { label: 'LIFECYCLE STATE',  value: velocoreX1Instance.lifecycle_state.replace(/_/g, ' ').toUpperCase().slice(0, 12), color: C.gold },
+          { label: 'LIFECYCLE STATE',  value: velocoreX1Instance.lifecycle_state.replace(/_/g, ' ').toUpperCase(), color: C.gold },
           { label: 'ACTIVE STEWARDS',  value: String(actors.length),                   color: C.purple },
           { label: 'DPP ACCESS EVENTS', value: String(totalAccess),                    color: C.cyan   },
         ].map((k, i) => (
@@ -195,7 +195,7 @@ const panels: Record<string, PanelFn> = {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12, color: C.text }}>{eventLabel(e.event_type)}</div>
                 <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {actor ? actor.name : velocoreX1Instance.owner_handle}
+                  {actor ? actor.name : `@${velocoreX1Instance.owner_handle}`}
                 </div>
               </div>
               <span style={{ fontSize: 10, color: C.textDim, flexShrink: 0 }}>{dateStr}</span>

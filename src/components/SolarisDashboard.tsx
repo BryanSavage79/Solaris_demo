@@ -449,6 +449,13 @@ const StewardRow = ({ name, handle, tier, score, status }: StewardRowProps) => {
   );
 };
 
+// ── Actor tier helper ──────────────────────────────────────────────────
+function actorTier(type: string): string {
+  if (type === "manufacturer" || type === "brand") return "Founding";
+  if (type === "regulator") return "Associate";
+  return "Verified";
+}
+
 // ── Tab content panels ─────────────────────────────────────────────────
 const panels: Record<string, () => React.ReactNode> = {
   overview: () => (
@@ -702,8 +709,8 @@ const panels: Record<string, () => React.ReactNode> = {
             key={i}
             name={a.name}
             handle={a.onchain_handle ? `@${a.onchain_handle}` : a.country_code}
-            tier={a.type === "manufacturer" || a.type === "brand" ? "Founding" : a.type === "regulator" ? "Associate" : "Verified"}
-            score={a.verified ? "✓" : "—"}
+            tier={actorTier(a.type)}
+            score={a.verified ? "Verified" : "Unverified"}
             status="active"
           />
         ))}
