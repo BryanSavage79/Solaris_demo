@@ -1,4 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
+import {
+  actors,
+  actorById,
+  actorCountByType,
+  dppAccessCounts,
+  dppAccessLog,
+  eventLabel,
+  lifecycleEventsDesc,
+  velocoreX1Class,
+  velocoreX1Instance,
+} from '../data/tracelayerSeedData';
 
 // ── Color palette ──────────────────────────────────────────────────────
 const C = {
@@ -117,18 +128,30 @@ type PanelFn = () => React.ReactElement;
 
 const panels: Record<string, PanelFn> = {
 
-  overview: () => (
+  overview: () => {
+    const currentActor = actorById[velocoreX1Instance.current_actor_id];
+    const totalAccess = dppAccessLog.length;
+    const eventColors: Record<string, string> = {
+      produced: C.cyan,
+      quality_check: C.cyan,
+      shipped: C.gold,
+      checkpoint_scan: C.gold,
+      received_inventory: C.purple,
+      sold: C.gold,
+      consumer_activation: C.cyan,
+    };
+    return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'fade-in 0.4s ease' }}>
       {/* KPI row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {[
-          { label: 'ASSETS TRACKED', value: '481,204', color: C.cyan },
-          { label: 'DPP PASSPORTS',  value: '18,492',  color: C.gold },
-          { label: 'ACTIVE STEWARDS', value: '62',     color: C.purple },
-          { label: 'IMPACT CREDITS',  value: '9,341',  color: C.cyan },
+          { label: 'TRACKED INSTANCE', value: '1',                                     color: C.cyan   },
+          { label: 'LIFECYCLE STATE',  value: velocoreX1Instance.lifecycle_state.replace(/_/g, ' ').toUpperCase().slice(0, 12), color: C.gold },
+          { label: 'ACTIVE STEWARDS',  value: String(actors.length),                   color: C.purple },
+          { label: 'DPP ACCESS EVENTS', value: String(totalAccess),                    color: C.cyan   },
         ].map((k, i) => (
           <GlassCard key={i} style={{ padding: '14px 16px', textAlign: 'center' }}>
-            <div style={{ fontSize: 24, fontFamily: "'Orbitron', sans-serif", fontWeight: 800, color: k.color }}>
+            <div style={{ fontSize: 18, fontFamily: "'Orbitron', sans-serif", fontWeight: 800, color: k.color, lineHeight: 1.2 }}>
               {k.value}
             </div>
             <div style={{ fontSize: 9, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1, marginTop: 4 }}>
@@ -138,57 +161,57 @@ const panels: Record<string, PanelFn> = {
         ))}
       </div>
 
-      {/* Network health */}
+      {/* Product snapshot */}
       <GlassCard style={{ padding: 16 }} accent={C.cyan}>
         <div style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1, marginBottom: 14 }}>
-          NETWORK HEALTH
+          PRODUCT SNAPSHOT — VELOCORE X1
         </div>
         {[
-          { label: 'Data Integrity',   pct: 100, color: C.cyan   },
-          { label: 'Chain Latency',    pct: 97,  color: C.cyan   },
-          { label: 'Steward Uptime',   pct: 99,  color: C.gold   },
-          { label: 'DPP Coverage',     pct: 94,  color: C.purple },
-        ].map((m, i) => (
-          <div key={i} style={{ marginBottom: 10 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 12, color: C.textMid }}>{m.label}</span>
-              <span style={{ fontSize: 11, color: m.color, fontFamily: "'Orbitron', sans-serif" }}>{m.pct}%</span>
-            </div>
-            <MiniBar pct={m.pct} color={m.color}/>
+          { label: 'SKU',            value: velocoreX1Class.sku,                   color: C.cyan   },
+          { label: 'Serial',         value: velocoreX1Instance.serial_number,      color: C.text   },
+          { label: 'Current Owner',  value: `@${velocoreX1Instance.owner_handle}`, color: C.gold   },
+          { label: 'Current Custodian', value: currentActor?.name ?? '—',          color: C.text   },
+          { label: 'Carbon Footprint', value: `${velocoreX1Instance.carbon_footprint_kg} kg CO₂e`, color: C.purple },
+        ].map((r, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', ...rowBorder }}>
+            <span style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>{r.label}</span>
+            <span style={{ fontSize: 12, color: r.color, fontWeight: 600, maxWidth: '60%', textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.value}</span>
           </div>
         ))}
       </GlassCard>
 
-      {/* Recent activity */}
+      {/* Recent activity (seed lifecycle events, reverse-chrono) */}
       <GlassCard style={{ padding: 16 }}>
         <div style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1, marginBottom: 12 }}>
           RECENT ACTIVITY
         </div>
-        {[
-          { event: 'DPP Passport Issued',       actor: 'FACTORY-UA-EMEA-07', time: '2m ago',  color: C.cyan   },
-          { event: 'Steward Threshold Met',     actor: 'COVENANT-CVN-0042',  time: '8m ago',  color: C.gold   },
-          { event: 'Digital Twin Sync',         actor: 'TWIN-v2.4-BASE-L2',  time: '12m ago', color: C.purple },
-          { event: 'Impact Credit Allocated',   actor: 'STEWARD-039',         time: '31m ago', color: C.cyan   },
-          { event: 'Quarterly Audit Scheduled', actor: 'AUDITOR-EMEA-QA',    time: '1h ago',  color: C.gold   },
-        ].map((a, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', ...rowBorder }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: a.color, flexShrink: 0, boxShadow: `0 0 6px ${a.color}` }}/>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, color: C.text }}>{a.event}</div>
-              <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>{a.actor}</div>
+        {lifecycleEventsDesc.slice(0, 5).map((e, i) => {
+          const actor = e.actor_id ? actorById[e.actor_id] : null;
+          const color = eventColors[e.event_type] ?? C.cyan;
+          const dateStr = new Date(e.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+          return (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', ...rowBorder }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 6px ${color}` }}/>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, color: C.text }}>{eventLabel(e.event_type)}</div>
+                <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {actor ? actor.name : velocoreX1Instance.owner_handle}
+                </div>
+              </div>
+              <span style={{ fontSize: 10, color: C.textDim, flexShrink: 0 }}>{dateStr}</span>
             </div>
-            <span style={{ fontSize: 10, color: C.textDim, flexShrink: 0 }}>{a.time}</span>
-          </div>
-        ))}
+          );
+        })}
       </GlassCard>
     </div>
-  ),
+    );
+  },
 
   intelligence: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'fade-in 0.4s ease' }}>
       <GlassCard style={{ padding: 16 }} accent={C.gold}>
         <div style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1, marginBottom: 14 }}>
-          BRAND INTELLIGENCE SCORE
+          BRAND INTELLIGENCE — STRIDECORE EU
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 16 }}>
           <div style={{ fontSize: 52, fontFamily: "'Orbitron', sans-serif", fontWeight: 900, color: C.gold, lineHeight: 1 }}>
@@ -201,9 +224,9 @@ const panels: Record<string, PanelFn> = {
         </div>
         {[
           { label: 'Transparency Index', value: 98, color: C.cyan   },
-          { label: 'Circular Score',     value: 91, color: C.gold   },
-          { label: 'Steward Quality',    value: 96, color: C.purple },
-          { label: 'Impact Efficiency',  value: 93, color: C.cyan   },
+          { label: 'Circular Score',     value: Math.round(velocoreX1Class.recycled_content_pct), color: C.gold   },
+          { label: 'Repairability',      value: Math.round(velocoreX1Class.repairability_score * 10), color: C.purple },
+          { label: 'DPP Integrity',      value: 100, color: C.cyan   },
         ].map((m, i) => (
           <div key={i} style={{ marginBottom: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -220,12 +243,12 @@ const panels: Record<string, PanelFn> = {
           SUPPLY CHAIN SIGNALS
         </div>
         {[
-          { signal: 'Tier-1 Visibility',    status: 'HIGH',    c: C.cyan   },
-          { signal: 'Material Provenance',  status: 'VERIFIED', c: C.cyan  },
-          { signal: 'Carbon Accounting',    status: 'ACTIVE',  c: C.gold   },
-          { signal: 'Recycled Content',     status: '34%',     c: C.purple },
-          { signal: 'Water Stewardship',    status: 'MET',     c: C.cyan   },
-          { signal: 'Social Compliance',    status: 'AUDITED', c: C.gold   },
+          { signal: 'Country of Origin',   status: velocoreX1Class.country_of_origin,          c: C.cyan   },
+          { signal: 'Material Provenance', status: 'VERIFIED',                                  c: C.cyan   },
+          { signal: 'CE Marking',          status: velocoreX1Class.ce_marking ? 'YES' : 'NO',  c: C.gold   },
+          { signal: 'Recycled Content',    status: `${velocoreX1Class.recycled_content_pct}%`,  c: C.purple },
+          { signal: 'Substances Cleared',  status: 'ALL PASS',                                  c: C.cyan   },
+          { signal: 'DPP Profile',         status: velocoreX1Class.dpp_profile.toUpperCase(),   c: C.gold   },
         ].map((s, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', ...rowBorder }}>
             <span style={{ fontSize: 13, color: C.text }}>{s.signal}</span>
@@ -243,11 +266,7 @@ const panels: Record<string, PanelFn> = {
           ACTIVE BRAND WELLS
         </div>
         {[
-          { brand: 'Under Armour EMEA',  well: 'BW-001', assets: '18,492', score: 94, status: 'ACTIVE',  c: C.cyan   },
-          { brand: 'Patagonia EU',        well: 'BW-002', assets: '9,881',  score: 99, status: 'ACTIVE',  c: C.cyan   },
-          { brand: 'Adidas AG',           well: 'BW-003', assets: '41,203', score: 88, status: 'ACTIVE',  c: C.gold   },
-          { brand: 'Lululemon EMEA',      well: 'BW-004', assets: '7,104',  score: 91, status: 'ACTIVE',  c: C.cyan   },
-          { brand: 'Decathlon FR',        well: 'BW-005', assets: '2,300',  score: 77, status: 'PENDING', c: C.purple },
+          { brand: 'Stridecore Athletic EU', well: 'BW-001', assets: '1', score: 94, status: 'ACTIVE',  c: C.cyan   },
         ].map((b, i) => (
           <div key={i} style={{ padding: '12px 0', ...rowBorder }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -256,69 +275,83 @@ const panels: Record<string, PanelFn> = {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>{b.well}</span>
-              <span style={{ fontSize: 11, color: C.textMid }}>{b.assets} assets</span>
+              <span style={{ fontSize: 11, color: C.textMid }}>{b.assets} tracked instance</span>
             </div>
             <MiniBar pct={b.score} color={b.c}/>
-          </div>
-        ))}
-      </GlassCard>
-    </div>
-  ),
-
-  stewards: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'fade-in 0.4s ease' }}>
-      <GlassCard style={{ padding: 16 }} accent={C.cyan}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <div style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1 }}>
-            ACTIVE STEWARDS
-          </div>
-          <Chip label="62 / 50 THRESHOLD" color={C.cyan}/>
-        </div>
-        {[
-          { id: 'STW-001', name: 'Factory EMEA-07',       role: 'MANUFACTURER', status: 'ACTIVE',   score: 98, c: C.cyan   },
-          { id: 'STW-002', name: 'Porto Logistics Hub',   role: 'DISTRIBUTOR',  status: 'ACTIVE',   score: 94, c: C.cyan   },
-          { id: 'STW-003', name: 'GreenCycle EU',         role: 'RECYCLER',     status: 'ACTIVE',   score: 92, c: C.gold   },
-          { id: 'STW-004', name: 'Audit Collective EMEA', role: 'AUDITOR',      status: 'AUDITING', score: 88, c: C.purple },
-          { id: 'STW-005', name: 'Tier-1 Textile Mills',  role: 'SUPPLIER',     status: 'ACTIVE',   score: 96, c: C.cyan   },
-          { id: 'STW-006', name: 'Last Mile DE',          role: 'RETAILER',     status: 'ACTIVE',   score: 91, c: C.gold   },
-        ].map((s, i) => (
-          <div key={i} style={{ padding: '10px 0', ...rowBorder }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-              <div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{s.name}</span>
-                <span style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", marginLeft: 8 }}>{s.id}</span>
-              </div>
-              <Chip label={s.status} color={s.c}/>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 0.5 }}>{s.role}</span>
-              <span style={{ fontSize: 11, color: s.c, fontFamily: "'Orbitron', sans-serif" }}>{s.score}</span>
-            </div>
-            <MiniBar pct={s.score} color={s.c}/>
           </div>
         ))}
       </GlassCard>
 
       <GlassCard style={{ padding: 16 }}>
         <div style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1, marginBottom: 12 }}>
-          STEWARD BREAKDOWN
+          MATERIAL COMPOSITION
         </div>
-        {[
-          { role: 'Manufacturers', count: 12, color: C.cyan   },
-          { role: 'Distributors',  count: 18, color: C.gold   },
-          { role: 'Retailers',     count: 14, color: C.purple },
-          { role: 'Recyclers',     count: 8,  color: C.cyan   },
-          { role: 'Auditors',      count: 6,  color: C.gold   },
-          { role: 'Suppliers',     count: 4,  color: C.purple },
-        ].map((r, i) => (
-          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', ...rowBorder }}>
-            <span style={{ fontSize: 12, color: C.text }}>{r.role}</span>
-            <span style={{ fontSize: 13, color: r.color, fontFamily: "'Orbitron', sans-serif", fontWeight: 700 }}>{r.count}</span>
+        {velocoreX1Class.material_composition.map((m, i) => (
+          <div key={i} style={{ marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 11, color: C.textMid }}>{m.material}</span>
+              <span style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>{m.pct}% · {m.origin}</span>
+            </div>
+            <MiniBar pct={m.pct} color={i % 2 === 0 ? C.cyan : C.gold}/>
           </div>
         ))}
       </GlassCard>
     </div>
   ),
+
+  stewards: () => {
+    const roleColorMap: Record<string, string> = {
+      manufacturer: C.cyan,
+      brand:        C.gold,
+      distributor:  C.gold,
+      retailer:     C.purple,
+      repairer:     C.cyan,
+      recycler:     C.cyan,
+      regulator:    C.purple,
+    };
+    return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'fade-in 0.4s ease' }}>
+      <GlassCard style={{ padding: 16 }} accent={C.cyan}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <div style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1 }}>
+            ACTIVE STEWARDS
+          </div>
+          <Chip label={`${actors.length} ACTORS`} color={C.cyan}/>
+        </div>
+        {actors.map((a, i) => {
+          const color = roleColorMap[a.type] ?? C.cyan;
+          return (
+            <div key={i} style={{ padding: '10px 0', ...rowBorder }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <div>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{a.name}</span>
+                  <span style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", marginLeft: 8 }}>{a.country_code}</span>
+                </div>
+                <Chip label={a.verified ? 'VERIFIED' : 'UNVERIFIED'} color={a.verified ? C.cyan : C.gold}/>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 0.5 }}>{a.type.toUpperCase()}</span>
+                {a.onchain_handle && <span style={{ fontSize: 10, color: color, fontFamily: "'Share Tech Mono', monospace" }}>{a.onchain_handle}</span>}
+              </div>
+            </div>
+          );
+        })}
+      </GlassCard>
+
+      <GlassCard style={{ padding: 16 }}>
+        <div style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1, marginBottom: 12 }}>
+          STEWARD BREAKDOWN
+        </div>
+        {(Object.entries(actorCountByType) as [string, number][]).map(([role, count], i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', ...rowBorder }}>
+            <span style={{ fontSize: 12, color: C.text, textTransform: 'capitalize' }}>{role}s</span>
+            <span style={{ fontSize: 13, color: roleColorMap[role] ?? C.cyan, fontFamily: "'Orbitron', sans-serif", fontWeight: 700 }}>{count}</span>
+          </div>
+        ))}
+      </GlassCard>
+    </div>
+    );
+  },
 
   covenant: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'fade-in 0.4s ease' }}>
@@ -328,11 +361,11 @@ const panels: Record<string, PanelFn> = {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {[
-            { label: 'Partner',    value: 'Under Armour EMEA',  color: undefined },
-            { label: 'Covenant ID', value: 'CVN-0042-UA-EMEA', color: undefined },
-            { label: 'Established', value: 'Q1 2026',           color: undefined },
-            { label: 'Status',      value: 'RATIFIED',          color: C.cyan    },
-            { label: 'Renewal',     value: 'Q1 2027',           color: undefined },
+            { label: 'Partner',     value: 'Stridecore Athletic Europe BV', color: undefined },
+            { label: 'Covenant ID', value: 'CVN-SC-EU-2025',               color: undefined },
+            { label: 'Established', value: 'Q1 2025',                       color: undefined },
+            { label: 'Status',      value: 'RATIFIED',                      color: C.cyan    },
+            { label: 'Renewal',     value: 'Q1 2026',                       color: undefined },
           ].map((r, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', ...rowBorder }}>
               <span style={{ fontSize: 12, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>{r.label}</span>
@@ -348,10 +381,10 @@ const panels: Record<string, PanelFn> = {
         </div>
         {[
           { term: 'DPP Compliance',         status: 'MET',     c: C.cyan   },
-          { term: 'Impact Credit Floor',    status: 'MET',     c: C.cyan   },
-          { term: 'Steward Threshold (50)', status: 'MET',     c: C.cyan   },
-          { term: 'ULIQ Floor (750)',        status: 'MET',     c: C.cyan   },
-          { term: 'Quarterly Audit',         status: 'PENDING', c: C.gold  },
+          { term: 'CE Marking',             status: 'MET',     c: C.cyan   },
+          { term: 'ESPR Substance Checks',  status: 'MET',     c: C.cyan   },
+          { term: 'Circularity Programme',  status: 'ACTIVE',  c: C.cyan   },
+          { term: 'Quarterly Audit',        status: 'PENDING', c: C.gold   },
         ].map((t, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', ...rowBorder }}>
             <span style={{ fontSize: 13, color: C.text }}>{t.term}</span>
@@ -362,14 +395,17 @@ const panels: Record<string, PanelFn> = {
     </div>
   ),
 
-  digitaltwin: () => (
+  digitaltwin: () => {
+    const onchainTx = lifecycleEventsDesc.find(e => e.onchain_tx)?.onchain_tx ?? '';
+    const shortTx = onchainTx ? `${onchainTx.slice(0, 10)}…${onchainTx.slice(-6)}` : '—';
+    return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'fade-in 0.4s ease' }}>
       <GlassCard style={{ padding: 16 }} accent={C.purple}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
           <span style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1 }}>
             DIGITAL TWIN STATUS
           </span>
-          <Chip label="SYNCED" color={C.purple}/>
+          <Chip label="ACTIVE" color={C.purple}/>
         </div>
 
         {/* SVG Orbit rings */}
@@ -394,61 +430,82 @@ const panels: Record<string, PanelFn> = {
               />
               <circle cx="60" cy="60" r="26" fill={`${C.purple}18`} stroke={C.purple} strokeWidth="1.5"/>
               <text x="60" y="55" textAnchor="middle" fontSize="9" fill={C.purple} fontFamily="'Share Tech Mono'">TWIN</text>
-              <text x="60" y="68" textAnchor="middle" fontSize="10" fill="white" fontFamily="'Orbitron'" fontWeight="700">v2.4</text>
+              <text x="60" y="68" textAnchor="middle" fontSize="9" fill="white" fontFamily="'Orbitron'" fontWeight="700">NFC</text>
             </svg>
           </div>
         </div>
 
         {[
-          { label: 'Last Sync',       value: '2m ago'       },
-          { label: 'Data Points',     value: '481,204'      },
-          { label: 'Integrity Hash',  value: '0x3f9a...d71c' },
-          { label: 'Chain',           value: 'Base L2'      },
+          { label: 'Serial Number',   value: velocoreX1Instance.serial_number       },
+          { label: 'NFC Carrier',     value: velocoreX1Instance.data_carrier_id     },
+          { label: 'Lifecycle State', value: velocoreX1Instance.lifecycle_state.replace(/_/g, ' ') },
+          { label: 'Owner Handle',    value: `@${velocoreX1Instance.owner_handle}`  },
+          { label: 'Activated',       value: new Date(velocoreX1Instance.activated_at).toLocaleDateString('en-GB') },
+          { label: 'Warranty Expires', value: new Date(velocoreX1Instance.warranty_expires).toLocaleDateString('en-GB') },
+          { label: 'On-Chain TX',     value: shortTx },
         ].map((r, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', ...rowBorder }}>
             <span style={{ fontSize: 12, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>{r.label}</span>
-            <span style={{ fontSize: 13, color: C.text }}>{r.value}</span>
+            <span style={{ fontSize: 11, color: C.text, maxWidth: '55%', textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.value}</span>
           </div>
         ))}
       </GlassCard>
     </div>
-  ),
+    );
+  },
 
   dpp: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'fade-in 0.4s ease' }}>
       <GlassCard style={{ padding: 16 }} accent={C.cyan}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
           <span style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1 }}>
-            EU DPP COMPLIANCE
+            EU DPP — VELOCORE X1
           </span>
           <Chip label="COMPLIANT" color={C.cyan}/>
         </div>
 
-        {/* KPI pair */}
+        {/* Product profile summary */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontFamily: "'Orbitron', sans-serif", fontWeight: 800, color: C.cyan }}>18,492</div>
-            <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>PASSPORTS ISSUED</div>
+            <div style={{ fontSize: 22, fontFamily: "'Orbitron', sans-serif", fontWeight: 800, color: C.cyan }}>{velocoreX1Class.recycled_content_pct}%</div>
+            <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>RECYCLED CONTENT</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontFamily: "'Orbitron', sans-serif", fontWeight: 800, color: C.gold }}>100%</div>
-            <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>INTEGRITY RATE</div>
+            <div style={{ fontSize: 22, fontFamily: "'Orbitron', sans-serif", fontWeight: 800, color: C.gold }}>{velocoreX1Class.repairability_score}/10</div>
+            <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>REPAIRABILITY</div>
           </div>
         </div>
 
+        {/* CE + profile */}
         {[
-          { cat: 'Footwear',  count: 8412, pct: 100 },
-          { cat: 'Apparel',   count: 6218, pct: 100 },
-          { cat: 'Equipment', count: 3862, pct: 100 },
-        ].map((c, i) => (
+          { label: 'CE Marking',        value: velocoreX1Class.ce_marking ? 'YES' : 'NO',       color: C.cyan   },
+          { label: 'DPP Profile',       value: velocoreX1Class.dpp_profile.toUpperCase(),        color: C.gold   },
+          { label: 'GTIN',              value: velocoreX1Class.gtin,                             color: C.text   },
+          { label: 'Spare Parts',       value: `${velocoreX1Class.spare_parts.length} available`, color: C.cyan  },
+        ].map((r, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', ...rowBorder }}>
+            <span style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace" }}>{r.label}</span>
+            <span style={{ fontSize: 12, color: r.color, fontWeight: 600 }}>{r.value}</span>
+          </div>
+        ))}
+      </GlassCard>
+
+      {/* DPP Access summary */}
+      <GlassCard style={{ padding: 16 }}>
+        <div style={{ fontSize: 11, color: C.textDim, fontFamily: "'Share Tech Mono', monospace", letterSpacing: 1, marginBottom: 12 }}>
+          DPP ACCESS SUMMARY
+        </div>
+        {[
+          { tier: 'Public',       count: dppAccessCounts['public']       ?? 0, color: C.cyan   },
+          { tier: 'Professional', count: dppAccessCounts['professional'] ?? 0, color: C.gold   },
+          { tier: 'Regulator',    count: dppAccessCounts['regulator']    ?? 0, color: C.purple },
+        ].map((r, i) => (
           <div key={i} style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 12, color: C.textMid }}>{c.cat}</span>
-              <span style={{ fontSize: 11, color: C.cyan, fontFamily: "'Orbitron', sans-serif" }}>
-                {c.count.toLocaleString()}
-              </span>
+              <span style={{ fontSize: 12, color: C.textMid }}>{r.tier}</span>
+              <span style={{ fontSize: 11, color: r.color, fontFamily: "'Orbitron', sans-serif" }}>{r.count}</span>
             </div>
-            <MiniBar pct={c.pct} color={C.cyan}/>
+            <MiniBar pct={Math.max((r.count / dppAccessLog.length) * 100, 10)} color={r.color}/>
           </div>
         ))}
       </GlassCard>
